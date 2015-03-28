@@ -1,0 +1,19 @@
+<cluster>
+  <name>voldemort-test-cluster</name>
+  <server>
+    <id>0</id>
+    <host>localhost</host>
+    <http-port>6001</http-port>
+    <socket-port>6666</socket-port>
+    <admin-port>6667</admin-port>
+    <partitions>0, 2, 4, 6, 8</partitions>
+  </server>
+  <server>
+    <id>1</id>
+    <host>localhost</host>
+    <http-port>6002</http-port>
+    <socket-port>6668</socket-port>
+    <admin-port>6669</admin-port>
+    <partitions>1, 3, 5, 7, 9</partitions>
+  </server>
+</cluster>

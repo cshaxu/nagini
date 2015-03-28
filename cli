@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bash bin/nagini-client.sh $@

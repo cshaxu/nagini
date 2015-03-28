@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bash bin/setup.sh install

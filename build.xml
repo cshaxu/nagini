@@ -1,0 +1,29 @@
+<project name="nagini" default="dist" basedir=".">
+  <!-- set global properties for this build -->
+  <property name="lib"  location="lib" />
+  <property name="src"  location="src" />
+  <property name="dist" location="dist"/>
+
+  <path id="lib-classpath">
+    <fileset dir="${lib}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="compile" description="compile the source " >
+    <mkdir dir="${dist}"/>
+    <javac srcdir="${src}" destdir="${dist}" debug="true" includes="**/*.java">
+      <classpath refid="lib-classpath" />
+    </javac>
+  </target>
+
+  <target name="dist" depends="clean,compile" description="generate the distribution" >
+    <mkdir dir="${dist}"/>
+    <jar jarfile="${dist}/nagini.jar" basedir="${dist}"/>
+    <delete dir="${dist}/nagini"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete dir="${dist}"/>
+  </target>
+</project>
