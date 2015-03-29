@@ -12,7 +12,7 @@ public class NaginiProcessUtils {
         ProcessBuilder processBuilder = new ProcessBuilder(args).redirectErrorStream(true)
                                                                 .directory(path);
 
-        stream.print("Command to be executed: " + Joiner.on(" ").join(args));
+        stream.println("Command to be executed: " + Joiner.on(" ").join(args));
 
         Process process = processBuilder.start();
         StreamWatchThread stdout = new StreamWatchThread(process.getInputStream(), stream, false);

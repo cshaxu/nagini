@@ -204,16 +204,16 @@ public class NaginiConfig {
 
         // client application properties
         private static final String PARAM_JAVA_EXEC = "client.java.exec";
-        private static final String PARAM_APP_GIT_REPO_URI = "client.app.git.repo.uri";
-        private static final String PARAM_APP_GIT_REPO_BRANCH = "client.app.git.repo.branch";
+        private static final String PARAM_APP_PACKET_PATH = "client.app.packet.path";
+        private static final String PARAM_APP_FETCH_COMMAND = "client.app.fetch.command";
         private static final String PARAM_APP_BUILD_COMMAND = "client.app.build.command";
         private static final String PARAM_APP_BUILD_OUTPUT_REL_PATHS = "client.app.build.output.rel.paths";
 
         public String basePath;
         public String tempPath;
         public String javaExec;
-        public String appGitRepoUri;
-        public String appGitRepoBranch;
+        public String appPacketPath;
+        public String appFetchCommand;
         public String appBuildCommand;
         public List<String> appBuildOutputSubPaths;
 
@@ -221,8 +221,8 @@ public class NaginiConfig {
             basePath = props.getProperty(PARAM_BASE_PATH);
             tempPath = props.getProperty(PARAM_TEMP_PATH);
             javaExec = props.getProperty(PARAM_JAVA_EXEC, "java");
-            appGitRepoUri = props.getProperty(PARAM_APP_GIT_REPO_URI);
-            appGitRepoBranch = props.getProperty(PARAM_APP_GIT_REPO_BRANCH, "master");
+            appPacketPath = props.getProperty(PARAM_APP_PACKET_PATH);
+            appFetchCommand = props.getProperty(PARAM_APP_FETCH_COMMAND, "");
             appBuildCommand = props.getProperty(PARAM_APP_BUILD_COMMAND, "");
             appBuildOutputSubPaths = Arrays.asList(props.getProperty(PARAM_APP_BUILD_OUTPUT_REL_PATHS,
                                                                      ".")

@@ -9,7 +9,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import nagini.client.NaginiClient;
 import nagini.utils.NaginiFileUtils;
-import nagini.utils.NaginiGitUtils;
 import nagini.utils.process.NaginiProcessUtils;
 
 /**
@@ -135,20 +134,22 @@ public class NaginiCommandDeploy extends AbstractCommand {
             // execute command
             NaginiClient naginiClient = new NaginiClient(configPath);
 
-            String tempPath = naginiClient.getClientTempPath();
-            File tempFolder = new File(tempPath);
-            if(tempFolder.exists()) {
-                NaginiFileUtils.delete(tempFolder);
+            String appPath = naginiClient.config.client.appPacketPath;
+            File appFolder = new File(appPath);
+            if(appFolder.exists()) {
+                NaginiFileUtils.delete(appFolder);
             }
 
-            // download application from git repository
-            NaginiGitUtils.clone(naginiClient.config.client.appGitRepoUri,
-                                 naginiClient.config.client.appGitRepoBranch,
-                                 tempPath);
+            NaginiFileUtils.delete(appFolder);
+
+            // fetch application packet
+            NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appFetchCommand.split("\\s* \\s*")),
+                                       new File(naginiClient.config.client.basePath),
+                                       System.out);
 
             // compile application jars
             NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appBuildCommand.split("\\s* \\s*")),
-                                       tempFolder,
+                                       appFolder,
                                        System.out);
 
             // create application distributable
@@ -156,9 +157,8 @@ public class NaginiCommandDeploy extends AbstractCommand {
                                          + naginiClient.config.server.getApplicationName();
             File tempApplication = new File(tempApplicationPath);
             for(String subPath: naginiClient.config.client.appBuildOutputSubPaths) {
-                NaginiFileUtils.copy(tempPath + File.separator + subPath, tempApplicationPath
-                                                                          + File.separator
-                                                                          + subPath);
+                NaginiFileUtils.copy(appPath + File.separator + subPath, tempApplicationPath
+                                                                         + File.separator + subPath);
             }
 
             // send application to remote servers
@@ -167,7 +167,7 @@ public class NaginiCommandDeploy extends AbstractCommand {
 
             // clean up temp folders
             NaginiFileUtils.delete(tempApplication);
-            NaginiFileUtils.delete(tempFolder);
+            NaginiFileUtils.delete(appFolder);
         }
     }
 
