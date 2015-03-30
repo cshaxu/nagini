@@ -378,7 +378,14 @@ public class NaginiServer {
 
     private void handleFileDeleteRequest(SocketAndStreams sands) throws IOException {
         String filePath = sands.getInputStream().readUTF();
-        if(NaginiFileUtils.delete(new File(filePath))) {
+        Boolean succeed = false;
+        try {
+            succeed = NaginiFileUtils.delete(new File(filePath));
+        } catch(Exception e) {
+            System.out.println("Exception during file deletion: " + e.getMessage());
+            e.printStackTrace();
+        }
+        if(succeed) {
             sendSuccessResponse(sands, "successfully deleted " + filePath + ".");
         } else {
             sendFailResponse(sands, "failed to delete " + filePath + ".");

@@ -159,9 +159,9 @@ public class NaginiCommandFile extends AbstractCommand {
                 for(String hostName: naginiClient.config.server.mapHostToNodes.keySet()) {
                     for(Integer nodeId: naginiClient.config.server.mapHostToNodes.get(hostName)) {
                         naginiClient.fileOps.putOneHost(hostName,
-                                                     localPath,
-                                                     naginiClient.config.server.getNodePath(nodeId)
-                                                             + File.separator + remoteNodePath);
+                                                        localPath,
+                                                        naginiClient.config.server.getNodePath(nodeId)
+                                                                + File.separator + remoteNodePath);
                     }
                 }
             }
@@ -260,10 +260,10 @@ public class NaginiCommandFile extends AbstractCommand {
                 for(String hostName: naginiClient.config.server.mapHostToNodes.keySet()) {
                     for(Integer nodeId: naginiClient.config.server.mapHostToNodes.get(hostName)) {
                         naginiClient.fileOps.getOneHost(hostName,
-                                                     naginiClient.config.server.getNodePath(nodeId)
-                                                             + File.separator + remoteNodePath,
-                                                     localPath + File.separator + hostName
-                                                             + File.separator + "node_" + nodeId);
+                                                        naginiClient.config.server.getNodePath(nodeId)
+                                                                + File.separator + remoteNodePath,
+                                                        localPath + File.separator + hostName
+                                                                + File.separator + "node_" + nodeId);
                     }
                 }
             }
@@ -337,6 +337,9 @@ public class NaginiCommandFile extends AbstractCommand {
 
             // check required options and/or conflicting options
             ParserUtils.checkRequired(options, ParserUtils.OPT_CONFIG);
+            ParserUtils.checkRequired(options,
+                                      ParserUtils.OPT_REMOTE_PATH,
+                                      ParserUtils.OPT_REMOTE_NODE_PATH);
             if(options.has(ParserUtils.OPT_REMOTE_PATH)) {
                 remotePath = (String) options.valueOf(ParserUtils.OPT_REMOTE_PATH);
             }
@@ -361,8 +364,9 @@ public class NaginiCommandFile extends AbstractCommand {
                 for(String hostName: naginiClient.config.server.mapHostToNodes.keySet()) {
                     for(Integer nodeId: naginiClient.config.server.mapHostToNodes.get(hostName)) {
                         naginiClient.fileOps.deleteOneHost(hostName,
-                                                        naginiClient.config.server.getNodePath(nodeId)
-                                                                + File.separator + remoteNodePath);
+                                                           naginiClient.config.server.getNodePath(nodeId)
+                                                                   + File.separator
+                                                                   + remoteNodePath);
                     }
                 }
             }
