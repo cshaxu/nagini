@@ -14,30 +14,30 @@ General Steps/Content Index
 
 
  2. Install Nagini  
- 2.1  Download and compile Nagini jar  
- 2.2  Configure Nagini properties and application cluster in nagini/config.  
- 2.3  Install Nagini to remote hosts. This starts remote Nagini servers.  
+ 2.1  Download and Compile Nagini JAR  
+ 2.2  Configure Nagini Properties and Application Cluster in nagini/config  
+ 2.3  Install Nagini to Rmote Hosts and Start Remote Nagini Servers  
 
 
  3. Deploy Configuration and Application  
- 3.1  Deploy configuration files to remote servers.  
- 3.2  Clean previous application binary (optional), and deploy new application binary to remote servers.  
+ 3.1  Deploy Configuration Files to Remote Servers  
+ 3.2  Clean Previous Application Binary (optional) and Deploy New Application Binary to Remote Servers  
 
 
  4. Run The Remote Application For Whatever Purposes   
- 4.1  Start application instances and check status.  
+ 4.1  Start Application Instances and Check Status  
 
 
  5. Clean-up  
- 5.1  Clean application binary on remote hosts.  
- 5.3  Terminate remote Nagini servers.  
- 5.4  Remove remote Nagini folders.  
+ 5.1  Clean Application Binary on Remote Hosts  
+ 5.3  Terminate Remote Nagini Servers  
+ 5.4  Remove Remote Nagini Folders  
 
 
  Addendum.A Prepare Nagini Server Configurations  
  A.1  nagini.properties  
- A.2  host.list
- A.3  Application Config Files
+ A.2  host.list  
+ A.3  Application Config Files  
 
 
 Operational Details
@@ -204,7 +204,7 @@ client.app.git.repo.branch=master
 client.app.build.command=bash gradlew --stacktrace clean jar
 
 # list of files/folders to be copied to server side application binary folder, all relative to application base path
-client.app.build.output.rel.paths=contrib,dist,lib,src/java/log4j.properties
+client.app.build.output.rel.paths=bin,contrib,dist,lib,src/java/log4j.properties
 
 # server properties
 
@@ -233,6 +233,10 @@ server.java.exec=java
 server.watch.enabled=true
 
 # server application properties
+# application start command, where $ stands for server.base.path and # stands for node path
+# if server.app.start.command is specified, then all other server.app.* properties will not be used.
+server.app.start.command=$/application/bin/voldemort-server.sh # #/config
+
 # java class path to start remote application instances, path relative to server.base.path/application/
 server.app.java.class.rel.paths=dist,lib
 

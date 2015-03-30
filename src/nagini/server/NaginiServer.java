@@ -227,8 +227,10 @@ public class NaginiServer {
         dos.flush();
     }
 
-    private void sendWatchResponse(SocketAndStreams sands, Service service, Integer tail)
-            throws IOException {
+    private void sendWatchResponse(SocketAndStreams sands,
+                                   Service service,
+                                   Integer nodeId,
+                                   Integer tail) throws IOException {
         if(!service.isAlive()) {
             sendFailResponse(sands, "service " + service.getName() + " is corrupted.");
         } else if(service.getJobCount() == 0) {
@@ -238,7 +240,9 @@ public class NaginiServer {
             sendSuccessResponse(sands, "service " + service.getName()
                                        + " is going to run the next job.");
         } else {
-            List<String> output = service.readOutput();
+            List<String> output = Lists.newArrayList();
+            output.add("        [node = " + nodeId + "]");
+            output.addAll(service.readOutput());
             if(tail > 0) {
                 while(output.size() > tail) {
                     output.remove(0);
@@ -440,6 +444,6 @@ public class NaginiServer {
         Integer nodeId = dis.readInt();
         Integer tail = dis.readInt();
         Service service = mapNodeIdToApplicationStarterService.get(nodeId);
-        sendWatchResponse(sands, service, tail);
+        sendWatchResponse(sands, service, nodeId, tail);
     }
 }
