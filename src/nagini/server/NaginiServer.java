@@ -300,7 +300,7 @@ public class NaginiServer {
     private void handleControlReconfig(SocketAndStreams sands) throws IOException,
             InterruptedException {
         DataInputStream dis = sands.getInputStream();
-        String configPath = config.server.expandBasePath(dis.readUTF());
+        String configPath = dis.readUTF();
         sendSuccessResponse(sands, "started reloading config file from " + configPath);
         stopServices();
         loadConfig(configPath);
@@ -312,7 +312,6 @@ public class NaginiServer {
         File tempZipFile = new File(tempZipPath);
         DataInputStream dis = sands.getInputStream();
         String destPath = dis.readUTF();
-        destPath = config.server.expandBasePath(destPath);
         Long fileLength = dis.readLong();
         FileOutputStream fos = new FileOutputStream(tempZipFile);
         int bufferSize = 65536;
@@ -344,7 +343,7 @@ public class NaginiServer {
         String tempZipPath = getServerTempPath() + ".zip";
         File tempZipFile = new File(tempZipPath);
         DataOutputStream dos = sands.getOutputStream();
-        String filePath = config.server.expandBasePath(sands.getInputStream().readUTF());
+        String filePath = sands.getInputStream().readUTF();
         if(!new File(filePath).exists()) {
             sendFailResponse(sands, "failed to send " + filePath + ". (file does not exist)");
             return;
@@ -374,7 +373,7 @@ public class NaginiServer {
     }
 
     private void handleFileDeleteRequest(SocketAndStreams sands) throws IOException {
-        String filePath = config.server.expandBasePath(sands.getInputStream().readUTF());
+        String filePath = sands.getInputStream().readUTF();
         if(NaginiFileUtils.delete(new File(filePath))) {
             sendSuccessResponse(sands, "successfully deleted " + filePath + ".");
         } else {
@@ -397,18 +396,19 @@ public class NaginiServer {
             List<String> args = null;
             if(config.server.appStartCommand == null) {
                 JavaCommandBuilder jcb = new JavaCommandBuilder();
-                jcb.setJavaExec(config.server.javaExec);
+                jcb.setClassName(config.server.appJavaMainClass)
+                   .setJavaExec(config.server.expandNodePath(config.server.javaExec, nodeId))
+                   .setJvmOption(config.server.expandNodePath(config.server.appJvmOpts, nodeId))
+                   .addClassOption(config.server.expandNodePath(config.server.appJavaClassOpts,
+                                                                nodeId));
                 for(String subPath: config.server.appJavaClassSubPaths) {
                     jcb.addClassPathByFolder(config.server.getApplicationPath() + File.separator
                                              + subPath);
                 }
-                jcb.setJvmOption(config.server.appJvmOpts)
-                   .setClassName(config.server.appJavaMainClass)
-                   .addClassOption(config.server.expandNodePath(config.server.appJavaClassOpts,
-                                                                nodeId));
                 args = jcb.getJavaCommand();
             } else {
-                args = Arrays.asList(config.server.appStartCommand.split(" "));
+                args = Arrays.asList(config.server.expandNodePath(config.server.appStartCommand,
+                                                                  nodeId).split(" "));
             }
             sendSuccessResponse(sands, "starting application ...");
             service.addJob("application-" + nodeId, args, config.server.getNodePath(nodeId));

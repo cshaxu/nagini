@@ -105,17 +105,18 @@ public class NaginiConfig {
 
         public void loadConfig(Properties props, List<String> hosts) {
             // load config from properties
-            // hostList = Arrays.asList(nodeListValue.split("\\s*,\\s*"));
             userName = props.getProperty(PARAM_USER_NAME);
             basePath = props.getProperty(PARAM_BASE_PATH);
-            tempPath = props.getProperty(PARAM_TEMP_PATH);
+            tempPath = props.getProperty(PARAM_TEMP_PATH).replace("$", this.basePath);
+            javaExec = props.getProperty(PARAM_JAVA_EXEC, "java").replace("$", this.basePath);
+
             portId = Integer.parseInt(props.getProperty(PARAM_PORT_ID));
             watchEnabled = Boolean.parseBoolean(props.getProperty(PARAM_WATCH_ENABLED,
                                                                   Boolean.toString(true)));
-            javaExec = props.getProperty(PARAM_JAVA_EXEC, "java");
 
             if(props.containsKey(PARAM_APP_START_COMMAND)) {
-                appStartCommand = props.getProperty(PARAM_APP_START_COMMAND);
+                appStartCommand = props.getProperty(PARAM_APP_START_COMMAND).replace("$",
+                                                                                     this.basePath);
                 appJavaClassSubPaths = null;
                 appJavaMainClass = null;
                 appJavaClassOpts = null;
@@ -125,8 +126,10 @@ public class NaginiConfig {
                 appJavaClassSubPaths = Arrays.asList(props.getProperty(PARAM_APP_JAVA_CLASS_REL_PATHS)
                                                           .split("\\s*,\\s*"));
                 appJavaMainClass = props.getProperty(PARAM_APP_JAVA_MAIN_CLASS);
-                appJavaClassOpts = props.getProperty(PARAM_APP_JAVA_CLASS_OPTIONS, "");
-                appJvmOpts = props.getProperty(PARAM_APP_JVM_OPTIONS, "");
+                appJavaClassOpts = props.getProperty(PARAM_APP_JAVA_CLASS_OPTIONS, "")
+                                        .replace("$", this.basePath);
+                appJvmOpts = props.getProperty(PARAM_APP_JVM_OPTIONS, "").replace("$",
+                                                                                  this.basePath);
             }
 
             // load config from host.list
@@ -187,10 +190,6 @@ public class NaginiConfig {
             return getNodePath(nodeId) + File.separator + ServerConfig.NODE_APPLICATION_LOG_FILE;
         }
 
-        public String expandBasePath(String path) {
-            return path.replace("$", this.basePath);
-        }
-
         public String expandNodePath(String path, Integer nodeId) {
             return path.replace("#", getNodePath(nodeId));
         }
@@ -219,11 +218,13 @@ public class NaginiConfig {
 
         public void loadConfig(Properties props) {
             basePath = props.getProperty(PARAM_BASE_PATH);
-            tempPath = props.getProperty(PARAM_TEMP_PATH);
-            javaExec = props.getProperty(PARAM_JAVA_EXEC, "java");
-            appPacketPath = props.getProperty(PARAM_APP_PACKET_PATH);
-            appFetchCommand = props.getProperty(PARAM_APP_FETCH_COMMAND, "");
-            appBuildCommand = props.getProperty(PARAM_APP_BUILD_COMMAND, "");
+            tempPath = props.getProperty(PARAM_TEMP_PATH).replace("$", this.basePath);
+            javaExec = props.getProperty(PARAM_JAVA_EXEC, "java").replace("$", this.basePath);
+            appPacketPath = props.getProperty(PARAM_APP_PACKET_PATH).replace("$", this.basePath);
+            appFetchCommand = props.getProperty(PARAM_APP_FETCH_COMMAND, "").replace("$",
+                                                                                     this.basePath);
+            appBuildCommand = props.getProperty(PARAM_APP_BUILD_COMMAND, "").replace("$",
+                                                                                     this.basePath);
             appBuildOutputSubPaths = Arrays.asList(props.getProperty(PARAM_APP_BUILD_OUTPUT_REL_PATHS,
                                                                      ".")
                                                         .split("\\s*,\\s*"));
