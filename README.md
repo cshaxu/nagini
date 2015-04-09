@@ -123,10 +123,10 @@ This command uploads the server config files (as described in section 2.2) to al
 ```bash
 # stops application instances, and then removes application executable
 # from all remote Nagini servers. this is optional.
-bash bin/nagini-client.sh clean app
+bash bin/nagini-client.sh clean app -c <config-path>
 # stops application instances, downloads application from git repository,
 # build application executable and upload the application executable to all Nagini servers.
-bash bin/nagini-client.sh deploy app
+bash bin/nagini-client.sh deploy app -c <config-path>
 ```
 Usually you only need to do deploy-app, unless you need to clean up the existing application executable.
 
@@ -138,13 +138,13 @@ Usually you only need to do deploy-app, unless you need to clean up the existing
 ```bash
 # this command brings up all application instances on remote Nagini servers.
 # the application startup command and options are defined in `nagini.properties`.
-bash bin/nagini-client.sh start app
+bash bin/nagini-client.sh start app -c <config-path>
 # allow 10 seconds for application instances to start.
 sleep 10
 # run this command to check if application instances are running (non-blocking)
-bash bin/nagini-client.sh ping
+bash bin/nagini-client.sh ping -c <config-path>
 # run this command to dump application instance output on screen (blocking)
-bash bin/nagini-client.sh watch app
+bash bin/nagini-client.sh watch app -c <config-path>
 ```
 
 
@@ -153,8 +153,8 @@ bash bin/nagini-client.sh watch app
 ### 5.1  Clean application distributable on remote Nagini hosts.  
 
 ```bash
-bash bin/nagini-client.sh stop app
-bash bin/nagini-client.sh clean app
+bash bin/nagini-client.sh stop app -c <config-path>
+bash bin/nagini-client.sh clean app -c <config-path>
 ```
 
 
@@ -162,7 +162,7 @@ bash bin/nagini-client.sh clean app
 
 Unless necessary, you can keep Nagini server instances running.  
 ```bash
-bash bin/nagini-client.sh control stop
+bash bin/nagini-client.sh control stop -c <config-path>
 ```
 
 
