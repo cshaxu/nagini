@@ -3,19 +3,17 @@
 # Script to set up remote Nagini servers
 
 BASE_PATH=$(cd $(dirname $0)/.. && pwd)
-NAGINI_LOCAL_ROOT=$BASE_PATH
-NAGINI_LOCAL_CONFIG_PATH=${NAGINI_LOCAL_ROOT}/config
-NAGINI_LOCAL_CONFIG_FILE=${NAGINI_LOCAL_CONFIG_PATH}/nagini.properties
-NAGINI_HOST_LIST_FILE=${NAGINI_LOCAL_CONFIG_PATH}/host.list
+NAGINI_PACKET_PATH=$BASE_PATH
 
 function usage() {
   echo "A script to setup or clean up remote Nagini hosts"
-  echo "Format: $0 (install | uninstall)"
+  echo "Format: $0 (install | uninstall) <config-path>"
 }
 
-if [[ $# == 1 ]]
+if [[ $# == 2 ]]
 then
   NAGINI_SETUP_OPERATION=$1
+  NAGINI_CONFIG_PATH=$(cd $2 && pwd)
 else
   usage
   exit 1
@@ -34,8 +32,11 @@ fi
 #     exit 1
 # fi
 
-NAGINI_REMOTE_ROOT=$(cat $NAGINI_LOCAL_CONFIG_FILE | grep '^server.base.path' | awk -F '=' '{print $2}')
-NAGINI_REMOTE_USER=$(cat $NAGINI_LOCAL_CONFIG_FILE | grep '^server.user.name' | awk -F '=' '{print $2}')
+NAGINI_PROPERTIES_FILE=${NAGINI_CONFIG_PATH}/nagini.properties
+NAGINI_HOST_LIST_FILE=${NAGINI_CONFIG_PATH}/host.list
+
+NAGINI_REMOTE_ROOT=$(cat $NAGINI_PROPERTIES_FILE | grep '^server.base.path' | awk -F '=' '{print $2}')
+NAGINI_REMOTE_USER=$(cat $NAGINI_PROPERTIES_FILE | grep '^server.user.name' | awk -F '=' '{print $2}')
 NAGINI_REMOTE_HOSTS=$(cat ${NAGINI_HOST_LIST_FILE} | awk -F ',' '{print $1}'  | tr '\n' ' ')
 
 echo
@@ -60,7 +61,7 @@ ant dist
 
 echo
 echo "Terminating Nagini servers ..."
-bash ${NAGINI_LOCAL_ROOT}/bin/nagini-client.sh control stop
+bash ${NAGINI_PACKET_PATH}/bin/nagini-client.sh control stop -c ${NAGINI_CONFIG_PATH} 
 
 if [ $(uname) != "Darwin" ]; then set -e; fi;
 
@@ -71,28 +72,19 @@ if [ ${NAGINI_SETUP_OPERATION} == 'install' ]; then
   for host in ${NAGINI_REMOTE_HOSTS}
   do
     echo "Copying Nagini to ${host} ..."
-    ssh ${host} "sudo -u ${NAGINI_REMOTE_USER} -sn bash" << EOF
-set -x
-[ ! -e ${NAGINI_REMOTE_ROOT} ] && mkdir -p ${NAGINI_REMOTE_ROOT};
-chmod -R og=u ${NAGINI_REMOTE_ROOT}
-EOF
-    rsync -avz ${NAGINI_LOCAL_ROOT} --rsync-path "sudo -u ${NAGINI_REMOTE_USER} rsync" ${host}:${NAGINI_REMOTE_ROOT} > ${NAGINI_LOCAL_ROOT}/rsync.log 2>&1
-    ssh ${host} "sudo -u ${NAGINI_REMOTE_USER} -sn bash" << EOF
-set -x
-rm -rf ${NAGINI_REMOTE_ROOT}/config
-mv ${NAGINI_REMOTE_ROOT}/nagini/config ${NAGINI_REMOTE_ROOT}/
-EOF
+    rm -rf ${NAGINI_PACKET_PATH}/rsync.log
+    rsync -avz ${NAGINI_PACKET_PATH} ${NAGINI_CONFIG_PATH} --rsync-path "sudo -u ${NAGINI_REMOTE_USER} rsync" ${host}:${NAGINI_REMOTE_ROOT} >> ${NAGINI_PACKET_PATH}/rsync.log 2>&1
   done
 
   echo
   echo "Starting Nagini servers ..."
-  bash ${NAGINI_LOCAL_ROOT}/bin/nagini-client.sh control start
+  bash ${NAGINI_PACKET_PATH}/bin/nagini-client.sh control start -c ${NAGINI_CONFIG_PATH}
 
   sleep 1
 
   echo
   echo "Ping Nagini servers ..."
-  bash ${NAGINI_LOCAL_ROOT}/bin/nagini-client.sh control ping
+  bash ${NAGINI_PACKET_PATH}/bin/nagini-client.sh control ping -c ${NAGINI_CONFIG_PATH}
 
   exit 0
 
@@ -104,8 +96,7 @@ elif [ ${NAGINI_SETUP_OPERATION} == 'uninstall' ]; then
   do
     echo "Deleting Nagini on ${host} ..."
     ssh ${host} "sudo -u ${NAGINI_REMOTE_USER} -sn bash" << EOF
-set -x
-set -e
+set -ex
 rm -rf ${NAGINI_REMOTE_ROOT}/nagini
 rm -rf ${NAGINI_REMOTE_ROOT}/config
 rm -f ${NAGINI_REMOTE_ROOT}/*.log

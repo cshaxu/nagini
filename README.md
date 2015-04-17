@@ -103,7 +103,7 @@ The Nagini server and application nodes are defined in `host.list`. Everytime yo
 ### 2.3  Install Nagini to remote hosts. This starts remote Nagini server instances.  
 
 ```bash
-bash bin/setup.sh install
+bash bin/setup.sh install <config-path>
 ```
 setup.sh reads configurations from `nagini.properties` and `host.list`. It makes all directories on remote Nagini hosts, stops all running Nagini server instances, copies Nagini jars to remote Nagini hosts, and starts the remote Nagini servers. After installation, you can use `bin/nagini-client.sh` to operate the remote Nagini servers.
 
@@ -170,7 +170,7 @@ bash bin/nagini-client.sh control stop -c <config-path>
 
 Unless necessary, you can leave Nagini server folders for next startup.  
 ```bash
-bash bin/setup.sh uninstall
+bash bin/setup.sh uninstall <config-path>
 ```
 
 
