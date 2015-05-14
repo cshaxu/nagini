@@ -2,6 +2,7 @@ package nagini.client.command;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -72,6 +73,9 @@ public class NaginiCommandStart extends AbstractCommand {
             ParserUtils.acceptsHelp(parser);
             // required options
             ParserUtils.acceptsConfig(parser);
+            // optional options
+            ParserUtils.acceptsAllNodes(parser);
+            ParserUtils.acceptsNodeMultiple(parser);
             return parser;
         }
 
@@ -87,7 +91,7 @@ public class NaginiCommandStart extends AbstractCommand {
             stream.println("  start app - Start all application nodes on remote hosts");
             stream.println();
             stream.println("SYNOPSIS");
-            stream.println("  start app --config <config-path>");
+            stream.println("  start app --config <config-path> [-n <node-id-list> | --all-nodes]");
             stream.println();
             getParser().printHelpOn(stream);
             stream.println();
@@ -102,12 +106,15 @@ public class NaginiCommandStart extends AbstractCommand {
          * @throws IOException
          * 
          */
+        @SuppressWarnings("unchecked")
         public static void executeCommand(String[] args) throws IOException {
 
             OptionParser parser = getParser();
 
             // declare parameters
             String configPath = null;
+            Boolean allNodes = true;
+            List<Integer> nodeIds = null;
 
             // parse command-line input
             OptionSet options = parser.parse(args);
@@ -118,13 +125,24 @@ public class NaginiCommandStart extends AbstractCommand {
 
             // check required options and/or conflicting options
             ParserUtils.checkRequired(options, ParserUtils.OPT_CONFIG);
+            ParserUtils.checkOptional(options, ParserUtils.OPT_NODE, ParserUtils.OPT_ALL_NODES);
 
             // load parameters
             configPath = (String) options.valueOf(ParserUtils.OPT_CONFIG);
+            if(options.has(ParserUtils.OPT_NODE)) {
+                nodeIds = (List<Integer>) options.valuesOf(ParserUtils.OPT_NODE);
+                allNodes = false;
+            }
 
             // execute command
             NaginiClient naginiClient = new NaginiClient(configPath);
-            naginiClient.serviceOps.startApplicationAllNodes();
+            if(allNodes) {
+                naginiClient.serviceOps.startApplicationAllNodes();
+            } else {
+                for(Integer nodeId: nodeIds) {
+                    naginiClient.serviceOps.startApplicationOneNode(nodeId);
+                }
+            }
         }
     }
 }

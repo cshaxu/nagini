@@ -3,10 +3,14 @@ package nagini.client.command;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import nagini.client.NaginiClient;
+
+import com.google.common.collect.Sets;
 
 /**
  * Implements all watch commands.
@@ -84,6 +88,8 @@ public class NaginiCommandWatch extends AbstractCommand {
                   .describedAs("second")
                   .ofType(Integer.class);
             // optional options
+            ParserUtils.acceptsAllNodes(parser);
+            ParserUtils.acceptsNodeMultiple(parser);
             parser.acceptsAll(Arrays.asList(OPT_T, OPT_TAIL),
                               "number of tail lines to print output")
                   .withRequiredArg()
@@ -105,7 +111,7 @@ public class NaginiCommandWatch extends AbstractCommand {
             stream.println();
             stream.println("SYNOPSIS");
             stream.println("  watch app --config <config-path> --interval <second>");
-            stream.println("            [--tail <line-number>]");
+            stream.println("            [-n <node-id-list> | --all-nodes] [--tail <line-number>]");
             stream.println();
             getParser().printHelpOn(stream);
             stream.println();
@@ -120,12 +126,15 @@ public class NaginiCommandWatch extends AbstractCommand {
          * @throws IOException
          * 
          */
+        @SuppressWarnings("unchecked")
         public static void executeCommand(String[] args) throws IOException {
 
             OptionParser parser = getParser();
 
             // declare parameters
             String configPath = null;
+            Boolean allNodes = true;
+            List<Integer> nodeIds = null;
             Integer interval = 0;
             Integer tail = 0;
 
@@ -138,17 +147,31 @@ public class NaginiCommandWatch extends AbstractCommand {
 
             // check required options and/or conflicting options
             ParserUtils.checkRequired(options, ParserUtils.OPT_CONFIG);
+            ParserUtils.checkOptional(options, ParserUtils.OPT_NODE, ParserUtils.OPT_ALL_NODES);
             ParserUtils.checkRequired(options, OPT_INTERVAL);
 
             // load parameters
             configPath = (String) options.valueOf(ParserUtils.OPT_CONFIG);
+            if(options.has(ParserUtils.OPT_NODE)) {
+                nodeIds = (List<Integer>) options.valuesOf(ParserUtils.OPT_NODE);
+                allNodes = false;
+            }
             interval = (Integer) options.valueOf(OPT_INTERVAL);
             if(options.has(OPT_TAIL)) {
                 tail = (Integer) options.valueOf(OPT_TAIL);
             }
 
             // execute command
-            new NaginiClient(configPath).serviceOps.watchApplicationAllNodes(interval, tail);
+            NaginiClient naginiClient = new NaginiClient(configPath);
+            if(allNodes) {
+                naginiClient.serviceOps.watchApplicationAllNodes(interval, tail);
+            } else {
+                Set<Integer> nodeIdSet = Sets.newHashSet();
+                for(Integer nodeId: nodeIds) {
+                    nodeIdSet.add(nodeId);
+                }
+                naginiClient.serviceOps.watchApplicationMultipleNodes(nodeIdSet, interval, tail);
+            }
         }
     }
 }

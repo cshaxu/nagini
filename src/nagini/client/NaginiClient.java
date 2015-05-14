@@ -551,7 +551,7 @@ public class NaginiClient {
         public void startApplicationAllNodes() throws IOException {
             for(String hostName: config.server.mapHostToNodes.keySet()) {
                 for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
-                    startApplicationInner(nodeId);
+                    startApplicationOneNode(nodeId);
                 }
             }
         }
@@ -599,7 +599,7 @@ public class NaginiClient {
         public void stopApplicationAllNodes() throws IOException {
             for(String hostName: config.server.mapHostToNodes.keySet()) {
                 for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
-                    stopApplicationInner(nodeId);
+                    stopApplicationOneNode(nodeId);
                 }
             }
         }
@@ -642,29 +642,22 @@ public class NaginiClient {
          */
         public void watchApplicationOneNode(Integer nodeId, Integer interval, Integer tail)
                 throws IOException {
-            while(watchApplicationInner(nodeId, tail)) {
-                try {
-                    Thread.sleep(interval * 1000);
-                } catch(Exception e) {
-                    throw new IOException(e);
-                }
-            }
+            Set<Integer> nodeIds = Sets.newHashSet();
+            nodeIds.add(nodeId);
+            watchApplicationMultipleNodes(nodeIds, interval, tail);
         }
 
         /**
          * Watches all application nodes.
          * 
+         * @param nodeIds
          * @param interval
          * @param tail
          * @throws IOException
          */
-        public void watchApplicationAllNodes(Integer interval, Integer tail) throws IOException {
-            Set<Integer> nodeIds = Sets.newHashSet();
-            for(String hostName: config.server.mapHostToNodes.keySet()) {
-                for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
-                    nodeIds.add(nodeId);
-                }
-            }
+        public void watchApplicationMultipleNodes(Set<Integer> nodeIds,
+                                                  Integer interval,
+                                                  Integer tail) throws IOException {
             while(nodeIds.size() > 0) {
                 Set<Integer> removedNodeIds = Sets.newHashSet();
                 for(Integer nodeId: nodeIds) {
@@ -684,6 +677,24 @@ public class NaginiClient {
                     }
                 }
             }
+
+        }
+
+        /**
+         * Watches all application nodes.
+         * 
+         * @param interval
+         * @param tail
+         * @throws IOException
+         */
+        public void watchApplicationAllNodes(Integer interval, Integer tail) throws IOException {
+            Set<Integer> nodeIds = Sets.newHashSet();
+            for(String hostName: config.server.mapHostToNodes.keySet()) {
+                for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
+                    nodeIds.add(nodeId);
+                }
+            }
+            watchApplicationMultipleNodes(nodeIds, interval, tail);
         }
     }
 }

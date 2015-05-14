@@ -21,7 +21,7 @@ public class ParserUtils {
     }
 
     // options without argument
-    public static final String OPT_ALL_STORES = "all-stores";
+    public static final String OPT_ALL_NODES = "all-nodes";
     public static final String OPT_CONFIRM = "confirm";
     public static final String OPT_H = "h";
     public static final String OPT_HELP = "help";
@@ -37,20 +37,21 @@ public class ParserUtils {
     // options with multiple arguments
     // none
 
-    // options that have either one argument or multiple arguments
-    public static final String OPT_S = "s";
-    public static final String OPT_STORE = "store";
+    // options that have exactly one argument or multiple arguments
+    public static final String OPT_N = "n";
+    public static final String OPT_NODE = "node";
 
     // defined argument strings
     // none
 
     /**
-     * Adds OPT_ALL_STORES option to OptionParser, without argument.
+     * Adds OPT_ALL_NODES option to OptionParser, without argument.
      * 
      * @param parser OptionParser to be modified
+     * @param required Tells if this option is required or optional
      */
-    public static void acceptsAllStores(OptionParser parser) {
-        parser.accepts(OPT_ALL_STORES, "select all stores");
+    public static void acceptsAllNodes(OptionParser parser) {
+        parser.accepts(OPT_ALL_NODES, "select all nodes");
     }
 
     /**
@@ -132,28 +133,17 @@ public class ParserUtils {
     }
 
     /**
-     * Adds OPT_S | OPT_STORE option to OptionParser, with one argument.
+     * Adds OPT_N | OPT_NODE option to OptionParser, with multiple arguments.
      * 
      * @param parser OptionParser to be modified
+     * @param required Tells if this option is required or optional
      */
-    public static void acceptsStoreSingle(OptionParser parser) {
-        parser.acceptsAll(Arrays.asList(OPT_S, OPT_STORE), "store name")
+    public static void acceptsNodeMultiple(OptionParser parser) {
+        parser.acceptsAll(Arrays.asList(OPT_N, OPT_NODE), "node id list")
               .withRequiredArg()
-              .describedAs("store-name")
-              .ofType(String.class);
-    }
-
-    /**
-     * Adds OPT_S | OPT_STORE option to OptionParser, with multiple arguments.
-     * 
-     * @param parser OptionParser to be modified
-     */
-    public static void acceptsStoreMultiple(OptionParser parser) {
-        parser.acceptsAll(Arrays.asList(OPT_S, OPT_STORE), "store name list")
-              .withRequiredArg()
-              .describedAs("store-name-list")
+              .describedAs("node-id-list")
               .withValuesSeparatedBy(',')
-              .ofType(String.class);
+              .ofType(Integer.class);
     }
 
     /**
