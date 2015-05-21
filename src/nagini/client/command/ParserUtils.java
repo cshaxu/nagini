@@ -25,6 +25,7 @@ public class ParserUtils {
     public static final String OPT_CONFIRM = "confirm";
     public static final String OPT_H = "h";
     public static final String OPT_HELP = "help";
+    public static final String OPT_REFRESH = "refresh";
 
     // options with one argument
     public static final String OPT_CONFIG = "config";
@@ -33,6 +34,7 @@ public class ParserUtils {
     public static final String OPT_REMOTE_NODE_PATH = "remote-node-path";
     public static final String OPT_U = "u";
     public static final String OPT_URL = "url";
+
 
     // options with multiple arguments
     // none
@@ -144,6 +146,16 @@ public class ParserUtils {
               .describedAs("node-id-list")
               .withValuesSeparatedBy(',')
               .ofType(Integer.class);
+    }
+
+    /**
+     * Adds OPT_LOCAL_PATH option to OptionParser, with one argument.
+     *
+     * @param parser OptionParser to be modified
+     */
+    public static void acceptsRefresh(OptionParser parser) {
+        parser.accepts(OPT_REFRESH, "refresh the code base instead of deleting and re-fetching it")
+                .withOptionalArg();
     }
 
     /**

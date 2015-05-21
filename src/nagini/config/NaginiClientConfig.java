@@ -14,6 +14,7 @@ public class NaginiClientConfig {
     private static final String PARAM_JAVA_EXEC = "client.java.exec";
     private static final String PARAM_APP_PACKET_PATH = "client.app.packet.path";
     private static final String PARAM_APP_FETCH_COMMAND = "client.app.fetch.command";
+    private static final String PARAM_APP_REFRESH_COMMAND = "client.app.refresh.command";
     private static final String PARAM_APP_BUILD_COMMAND = "client.app.build.command";
     private static final String PARAM_APP_BUILD_OUTPUT_REL_PATHS = "client.app.build.output.rel.paths";
 
@@ -22,6 +23,7 @@ public class NaginiClientConfig {
     public String javaExec;
     public String appPacketPath;
     public String appFetchCommand;
+    public String appRefreshCommand;
     public String appBuildCommand;
     public List<String> appBuildOutputSubPaths;
 
@@ -31,6 +33,8 @@ public class NaginiClientConfig {
         javaExec = props.getProperty(PARAM_JAVA_EXEC, "java").replace("$", this.basePath);
         appPacketPath = props.getProperty(PARAM_APP_PACKET_PATH).replace("$", this.basePath);
         appFetchCommand = props.getProperty(PARAM_APP_FETCH_COMMAND, "")
+                               .replace("$", this.basePath);
+        appRefreshCommand = props.getProperty(PARAM_APP_REFRESH_COMMAND)
                                .replace("$", this.basePath);
         appBuildCommand = props.getProperty(PARAM_APP_BUILD_COMMAND, "")
                                .replace("$", this.basePath);

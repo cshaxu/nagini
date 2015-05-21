@@ -81,6 +81,8 @@ public class NaginiCommandDeploy extends AbstractCommand {
             ParserUtils.acceptsHelp(parser);
             // required options
             ParserUtils.acceptsConfig(parser);
+            // optional options
+            ParserUtils.acceptsRefresh(parser);
             return parser;
         }
 
@@ -96,7 +98,7 @@ public class NaginiCommandDeploy extends AbstractCommand {
             stream.println("  deploy app - Download from git repo, compile and deploy application");
             stream.println();
             stream.println("SYNOPSIS");
-            stream.println("  deploy app --config <config-path>");
+            stream.println("  deploy app --config <config-path> [--refresh]");
             stream.println();
             getParser().printHelpOn(stream);
             stream.println();
@@ -117,6 +119,7 @@ public class NaginiCommandDeploy extends AbstractCommand {
 
             // declare parameters
             String configPath = null;
+            boolean refresh = false;
 
             // parse command-line input
             OptionSet options = parser.parse(args);
@@ -130,22 +133,30 @@ public class NaginiCommandDeploy extends AbstractCommand {
 
             // load parameters
             configPath = (String) options.valueOf(ParserUtils.OPT_CONFIG);
+            refresh = options.has(ParserUtils.OPT_REFRESH);
 
             // execute command
             NaginiClient naginiClient = new NaginiClient(configPath);
 
             String appPath = naginiClient.config.client.appPacketPath;
             File appFolder = new File(appPath);
-            if(appFolder.exists()) {
-                NaginiFileUtils.delete(appFolder);
+
+            if (refresh) {
+                // refresh application packet
+                NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appRefreshCommand.split("\\s* \\s*")),
+                                           appFolder,
+                                           System.out);
+
+            } else {
+                if(appFolder.exists()) {
+                    NaginiFileUtils.delete(appFolder);
+                }
+
+                // fetch application packet
+                NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appFetchCommand.split("\\s* \\s*")),
+                        new File(naginiClient.config.client.basePath),
+                        System.out);
             }
-
-            NaginiFileUtils.delete(appFolder);
-
-            // fetch application packet
-            NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appFetchCommand.split("\\s* \\s*")),
-                                       new File(naginiClient.config.client.basePath),
-                                       System.out);
 
             // compile application jars
             NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appBuildCommand.split("\\s* \\s*")),
@@ -155,7 +166,6 @@ public class NaginiCommandDeploy extends AbstractCommand {
             // create application distributable
             String tempApplicationPath = System.getProperty("java.io.tmpdir") + File.separator
                                          + naginiClient.config.server.getApplicationName();
-            File tempApplication = new File(tempApplicationPath);
             for(String subPath: naginiClient.config.client.appBuildOutputSubPaths) {
                 NaginiFileUtils.copy(appPath + File.separator + subPath, tempApplicationPath
                                                                          + File.separator + subPath);
@@ -164,10 +174,6 @@ public class NaginiCommandDeploy extends AbstractCommand {
             // send application to remote servers
             naginiClient.fileOps.putAllHosts(tempApplicationPath,
                                              naginiClient.config.server.basePath);
-
-            // clean up temp folders
-            NaginiFileUtils.delete(tempApplication);
-            NaginiFileUtils.delete(appFolder);
         }
     }
 

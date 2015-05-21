@@ -355,7 +355,11 @@ public class NaginiClient {
             System.out.println("Client: zipping " + localPath + " ...");
             NaginiZipUtils.zip(localPath, tempZipPath, null);
             for(String hostName: config.server.mapHostToNodes.keySet()) {
-                putInner(hostName, tempZipPath, remotePath);
+                try {
+                    putInner(hostName, tempZipPath, remotePath);
+                } catch (Exception e) {
+                    System.err.println("Failed to put file on host: " + hostName);
+                }
             }
             NaginiFileUtils.delete(new File(tempZipPath));
         }
@@ -500,7 +504,11 @@ public class NaginiClient {
          */
         public void deleteAllHosts(String remotePath) throws IOException {
             for(String hostName: config.server.mapHostToNodes.keySet()) {
-                deleteInner(hostName, remotePath);
+                try {
+                    deleteInner(hostName, remotePath);
+                } catch (Exception e) {
+                    System.err.println("Failed to delete file on host: " + hostName);
+                }
             }
         }
     }
@@ -551,7 +559,11 @@ public class NaginiClient {
         public void startApplicationAllNodes() throws IOException {
             for(String hostName: config.server.mapHostToNodes.keySet()) {
                 for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
-                    startApplicationOneNode(nodeId);
+                    try {
+                        startApplicationOneNode(nodeId);
+                    } catch (Exception e) {
+                        System.err.println("Failed to start node '" + nodeId + "' on host: " + hostName);
+                    }
                 }
             }
         }
@@ -599,7 +611,11 @@ public class NaginiClient {
         public void stopApplicationAllNodes() throws IOException {
             for(String hostName: config.server.mapHostToNodes.keySet()) {
                 for(Integer nodeId: config.server.mapHostToNodes.get(hostName)) {
-                    stopApplicationOneNode(nodeId);
+                    try {
+                        stopApplicationOneNode(nodeId);
+                    } catch (Exception e) {
+                        System.err.println("Failed to stop node '" + nodeId + "' on host: " + hostName);
+                    }
                 }
             }
         }
