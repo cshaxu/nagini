@@ -154,8 +154,8 @@ public class NaginiCommandDeploy extends AbstractCommand {
 
                 // fetch application packet
                 NaginiProcessUtils.command(Arrays.asList(naginiClient.config.client.appFetchCommand.split("\\s* \\s*")),
-                        new File(naginiClient.config.client.basePath),
-                        System.out);
+                                           new File(naginiClient.config.client.basePath),
+                                           System.out);
             }
 
             // compile application jars
@@ -174,6 +174,9 @@ public class NaginiCommandDeploy extends AbstractCommand {
             // send application to remote servers
             naginiClient.fileOps.putAllHosts(tempApplicationPath,
                                              naginiClient.config.server.basePath);
+
+            // clean up temp folders
+            NaginiFileUtils.delete(tempApplicationPath);
         }
     }
 
