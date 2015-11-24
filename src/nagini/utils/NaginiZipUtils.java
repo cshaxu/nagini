@@ -14,6 +14,8 @@ import java.util.zip.ZipOutputStream;
 
 public class NaginiZipUtils {
 
+    private static final int BYTE_ARRAY_SIZE = 65536;
+
     private static void innerZip(ZipOutputStream zos,
                                  File srcFile,
                                  String parentPath,
@@ -44,7 +46,7 @@ public class NaginiZipUtils {
         } else {
             // zip file
             FileInputStream fis = new FileInputStream(srcFile);
-            byte[] buffer = new byte[65536];
+            byte[] buffer = new byte[BYTE_ARRAY_SIZE];
             int read;
             zos.putNextEntry(new ZipEntry(currentPath));
             while((read = fis.read(buffer)) > 0) {
@@ -60,7 +62,9 @@ public class NaginiZipUtils {
         if(destPath == null) {
             destPath = new String();
         }
-        ZipEntry entry = null;
+        ZipEntry entry;
+        int read;
+        byte data[] = new byte[BYTE_ARRAY_SIZE];
         while((entry = zis.getNextEntry()) != null) {
             String currentPath = destPath + File.separator + entry.getName();
             if(stream != null) {
@@ -75,10 +79,7 @@ public class NaginiZipUtils {
                 currentFile.mkdirs();
             } else {
                 FileOutputStream fos = new FileOutputStream(currentFile);
-
-                int read;
-                byte data[] = new byte[65536];
-                while((read = zis.read(data, 0, 65536)) != -1) {
+                while((read = zis.read(data)) != -1) {
                     fos.write(data, 0, read);
                 }
                 fos.flush();
