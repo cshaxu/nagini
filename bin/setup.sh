@@ -73,7 +73,7 @@ if [ ${NAGINI_SETUP_OPERATION} == 'install' ]; then
   do
     echo "Copying Nagini to ${host} ..."
     rm -rf ${NAGINI_PACKET_PATH}/rsync.log
-    rsync -avz ${NAGINI_PACKET_PATH} ${NAGINI_CONFIG_PATH} --rsync-path "sudo -u ${NAGINI_REMOTE_USER} rsync" ${host}:${NAGINI_REMOTE_ROOT} >> ${NAGINI_PACKET_PATH}/rsync.log 2>&1
+    rsync -avzL ${NAGINI_PACKET_PATH} ${NAGINI_CONFIG_PATH} --rsync-path "sudo -u ${NAGINI_REMOTE_USER} rsync" ${host}:${NAGINI_REMOTE_ROOT} >> ${NAGINI_PACKET_PATH}/rsync.log 2>&1
   done
 
   echo
