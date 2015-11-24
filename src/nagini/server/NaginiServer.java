@@ -392,7 +392,7 @@ public class NaginiServer {
         }
     }
 
-    private void handleStartApplicationRequest(SocketAndStreams sands) throws IOException {
+    private void handleStartApplicationRequest(SocketAndStreams sands) throws Exception {
         Integer nodeId = sands.getInputStream().readInt();
         Service service = mapNodeIdToApplicationStarterService.get(nodeId);
 
@@ -404,27 +404,34 @@ public class NaginiServer {
         if(service.isRunningJob()) {
             sendSuccessResponse(sands, "application is already running.");
         } else {
-            List<String> args = null;
-            if(config.server.appStartCommand == null) {
-                JavaCommandBuilder jcb = new JavaCommandBuilder();
-                jcb.setClassName(config.server.appJavaMainClass)
-                   .setJavaExec(config.server.expandNodePath(config.server.javaExec, nodeId))
-                   .setJvmOption(config.server.expandNodePath(config.server.appJvmOpts, nodeId))
-                   .addClassOption(config.server.expandNodePath(config.server.appJavaClassOpts,
-                                                                nodeId));
-                for(String subPath: config.server.appJavaClassSubPaths) {
-                    jcb.addClassPathByFolder(config.server.getApplicationPath() + File.separator
-                                             + subPath);
+            try {
+                List<String> args = null;
+                if(config.server.appStartCommand == null) {
+                    JavaCommandBuilder jcb = new JavaCommandBuilder();
+                    jcb.setClassName(config.server.appJavaMainClass)
+                            .setJavaExec(config.server.expandNodePath(config.server.javaExec, nodeId))
+                            .setJvmOption(config.server.expandNodePath(config.server.appJvmOpts, nodeId))
+                            .addClassOption(config.server.expandNodePath(config.server.appJavaClassOpts,
+                                    nodeId));
+                    for(String subPath: config.server.appJavaClassSubPaths) {
+                        jcb.addClassPathByFolder(config.server.getApplicationPath() + File.separator
+                                + subPath);
+                    }
+                    args = jcb.getJavaCommand();
+                } else {
+                    args = Arrays.asList(config.server.expandNodePath(config.server.appStartCommand,
+                            nodeId).split(" "));
                 }
-                args = jcb.getJavaCommand();
-            } else {
-                args = Arrays.asList(config.server.expandNodePath(config.server.appStartCommand,
-                                                                  nodeId).split(" "));
+                sendSuccessResponse(sands, "starting application ...");
+                service.addJob("application-" + nodeId, args, config.server.getNodePath(nodeId));
+                System.out.println("starting application: (node = " + nodeId + ")");
+                System.out.println(Joiner.on(" ").join(args));
+            } catch (Exception e) {
+                String failureMessage = "Failed to start application because of: " + e.getMessage();
+                sendFailResponse(sands, failureMessage);
+                System.out.println(failureMessage);
+                throw e;
             }
-            sendSuccessResponse(sands, "starting application ...");
-            service.addJob("application-" + nodeId, args, config.server.getNodePath(nodeId));
-            System.out.println("starting application: (node = " + nodeId + ")");
-            System.out.println(Joiner.on(" ").join(args));
         }
     }
 

@@ -69,10 +69,15 @@ public class JavaCommandBuilder {
 
     public JavaCommandBuilder addClassPathByFolder(String folderPath) {
         File folder = new File(folderPath);
-        for(File file: folder.listFiles()) {
-            addClassPath(file.getPath());
+        if (folder.exists()) {
+            for(File file: folder.listFiles()) {
+                addClassPath(file.getPath());
+            }
+            return this;
+        } else {
+            throw new IllegalArgumentException(
+                    "Cannot add elements to classpath as the path does not exist: " + folderPath);
         }
-        return this;
     }
 
     public List<String> getJavaCommand() {
