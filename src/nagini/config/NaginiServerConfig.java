@@ -88,13 +88,22 @@ public class NaginiServerConfig {
         // load config from host.list
         mapHostToNodes = Maps.newHashMap();
         mapNodeToHost = Maps.newHashMap();
+        List<Integer> alreadySeenNodeIds = Lists.newArrayList();
         for(String hostInfo: hosts) {
             String[] info = hostInfo.split("\\s*,\\s*");
             if(info.length > 0) {
                 String hostName = info[0];
-                List<Integer> nodeIds = Lists.newArrayList();
+                List<Integer> nodeIds = mapHostToNodes.get(hostName);
+                if (nodeIds == null) {
+                    nodeIds = Lists.newArrayList();
+                }
                 for(int i = 1; i < info.length; ++i) {
                     Integer nodeId = Integer.parseInt(info[i]);
+                    if (alreadySeenNodeIds.contains(nodeId)) {
+                        throw new IllegalStateException("The " + NaginiConfig.HOST_LIST_FILE +
+                                                        " config file contains duplicate node IDs.");
+                    }
+                    alreadySeenNodeIds.add(nodeId);
                     nodeIds.add(nodeId);
                     mapNodeToHost.put(nodeId, hostName);
                 }

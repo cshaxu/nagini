@@ -396,7 +396,7 @@ public class NaginiServer {
         Integer nodeId = sands.getInputStream().readInt();
         Service service = mapNodeIdToApplicationStarterService.get(nodeId);
 
-        if(!service.isAlive()) {
+        if (service == null || !service.isAlive()) {
             sendFailResponse(sands, "application starter service is corrupted.");
             return;
         }
@@ -439,7 +439,7 @@ public class NaginiServer {
         Integer nodeId = sands.getInputStream().readInt();
         Service service = mapNodeIdToApplicationStarterService.get(nodeId);
 
-        if(!service.isAlive()) {
+        if (service == null || !service.isAlive()) {
             sendFailResponse(sands, "application starter service is corrupted.");
             return;
         }
