@@ -13,7 +13,7 @@ import nagini.utils.NaginiFileUtils;
 public class NaginiConfig {
 
     private static final String NAGINI_PROPERTIES_FILE = "nagini.properties";
-    private static final String HOST_LIST_FILE = "host.list";
+    public static final String HOST_LIST_FILE = "host.list";
 
     public NaginiServerConfig server;
     public NaginiClientConfig client;
